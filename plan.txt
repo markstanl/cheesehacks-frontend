@@ -1,0 +1,29 @@
+There should be two distinct sections of the front end of this application:
+Login
+- the application should use only google SSO and tag users anonymously so we can keep their 
+
+
+Quiz:
+- The quiz will be a call and response between the frontend (us) and the backend, the backend will use API routes that specify the information, you may use placeholders for now
+- The request to the API should specify the theme of the question (preset hardcoded list)
+- The Backend will send an api response with the question and the responses (mimic this for now)
+- the frontend will locally store the questions and answers and send a final submit of all the questions and answers they had
+- JSON Question send:
+	{
+		"id": 294029492059020
+		"question_type": 0-6 (different question types e.g. single select, multi-select, etc.)
+		"question": {"number": 1, "text": "What is the middle of the world?"}
+		"answers": [
+		    {"id": 0, "text": "foo"},
+		    {"id": 2, "text": "bar"},
+		    {"id": 1, "text": "baz"}
+		]
+	}
+Diagnostics:
+- The diagnostics will send an API call to query the backend for information on the user that is logged in
+- these diagnostics will be displayed, mock this for now
+
+Styling:
+-Style this in a human way, attempt to make the website incorporate the color scheme and feelings of the UW madison website
+
+
