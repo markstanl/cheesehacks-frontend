@@ -1,4 +1,4 @@
-"use client"; // This component will use client-side features like `router.push`
+"use client";
 
 import { useRouter } from "next/navigation";
 
@@ -6,27 +6,26 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleGoogleLogin = () => {
-    // Placeholder for Google SSO logic
     console.log("Attempting Google SSO login...");
-    // For now, simply navigate to the quiz page after a "successful" login
     router.push("/quiz");
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="bg-cream text-ink flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 h-full">
       <div className="w-full max-w-md space-y-8 text-center">
         <div>
-          <h2 className="mt-6 text-center text-4xl font-extrabold text-foreground">
-            Welcome to CheeseHacks
+          <h2 className="mt-6 text-center text-4xl font-extrabold">
+            Align
           </h2>
-          <p className="mt-2 text-center text-lg text-secondary-grey">
-            Please sign in to continue
+          <p className="mt-2 text-center text-lg">
+            Answer absurd ethical dilemmas, and we'll tell you about yourself.
+            Help LLMs understand human values, and we'll help you understand yourself.
           </p>
         </div>
         <div>
           <button
             onClick={handleGoogleLogin}
-            className="group relative flex w-full justify-center rounded-md border border-transparent bg-primary-red py-3 px-6 text-lg font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-primary-red focus:ring-offset-2"
+            className="group relative flex w-full justify-center rounded-md borderpy-3 px-6 text-lg font-medium"
           >
             <span className="absolute inset-y-0 left-0 flex items-center pl-3">
               {/* Placeholder for Google icon, using a simple circle for now */}
