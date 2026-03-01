@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Link from "next/link"; // Import Link for navigation
+import Link from "next/link";
+import { SessionProvider } from "next-auth/react";
+import { auth } from "@/auth"; // Import auth function from the new auth.ts file
+import { LogoutButton } from "@/components/logout-button"; // Import LogoutButton from its new location
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,35 +21,39 @@ export const metadata: Metadata = {
   description: "Frontend for CheeseHacks application",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth(); // Use the auth function to get the session
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <header className="bg-primary-red p-4 text-white shadow-md">
-          <nav className="container mx-auto flex items-center justify-between">
-            <Link href="/" className="text-2xl font-bold">
-              CheeseHacks
-            </Link>
-            <div className="flex space-x-4">
-              <Link href="/quiz" className="hover:underline">
-                Quiz
+        <SessionProvider session={session}>
+          <header className="bg-primary-red p-4 text-white shadow-md">
+            <nav className="container mx-auto flex items-center justify-between">
+              <Link href="/" className="text-2xl font-bold">
+                CheeseHacks
               </Link>
-              <Link href="/diagnostics" className="hover:underline">
-                Diagnostics
-              </Link>
-              <Link href="/" className="hover:underline">
-                Logout
-              </Link>
-            </div>
-          </nav>
-        </header>
-        {children}
+              {session && ( // Conditionally render navigation links if session exists
+                <div className="flex space-x-4">
+                  <Link href="/quiz" className="hover:underline">
+                    Quiz
+                  </Link>
+                  <Link href="/diagnostics" className="hover:underline">
+                    Diagnostics
+                  </Link>
+                  <LogoutButton />
+                </div>
+              )}
+            </nav>
+          </header>
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );

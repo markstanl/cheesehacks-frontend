@@ -1,7 +1,8 @@
 There should be two distinct sections of the front end of this application:
 Login
 - the application should use only google SSO and tag users anonymously so we can keep their 
-
+authentication
+- use nextAuth and tailwind to set up google SSO
 
 Quiz:
 - The quiz will be a call and response between the frontend (us) and the backend, the backend will use API routes that specify the information, you may use placeholders for now

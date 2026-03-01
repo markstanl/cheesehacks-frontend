@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react"; // Import useSession
 
 interface Answer {
   id: number;
@@ -22,6 +23,8 @@ interface QuizSubmission {
 
 export default function QuizPage() {
   const router = useRouter();
+  const { data: session, status } = useSession(); // Get session status
+
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
   const [quizResponses, setQuizResponses] = useState<QuizSubmission[]>([]);
@@ -29,8 +32,12 @@ export default function QuizPage() {
   const MAX_QUESTIONS = 3; // Hardcoded for this demo
 
   useEffect(() => {
-    fetchNewQuestion();
-  }, []);
+    if (status === "unauthenticated") {
+      router.push("/"); // Redirect to login if not authenticated
+    } else if (status === "authenticated") {
+      fetchNewQuestion();
+    }
+  }, [status, router]);
 
   const fetchNewQuestion = async (theme: string = "general") => {
     if (questionCount >= MAX_QUESTIONS) {
@@ -117,6 +124,14 @@ export default function QuizPage() {
       alert("Error submitting quiz. Please try again.");
     }
   };
+
+  if (status === "loading" || status === "unauthenticated") {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <p className="text-secondary-grey">Loading quiz...</p>
+      </div>
+    );
+  }
 
   if (!currentQuestion && questionCount < MAX_QUESTIONS) {
     return (
