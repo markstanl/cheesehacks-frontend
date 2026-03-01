@@ -4,7 +4,7 @@ import { LogoutButton } from "@/components/logout-button";
 
 const Navbar = () => {
     return (
-        <header className="bg-primary-red p-4 text-cream shadow-md">
+        <header className="bg-primary p-4 text-cream shadow-md">
             <nav className="container mx-auto flex items-center justify-between">
                 <Link href="/" className="text-2xl font-bold text-cream">
                     Align

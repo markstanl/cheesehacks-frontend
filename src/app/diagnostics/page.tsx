@@ -4,21 +4,17 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react"; // Import useSession
 
-interface DiagnosticsData {
-  userId: string;
-  quizAttempts: number;
-  lastScore: string;
-  averageScore: string;
-  topicsStrong: string[];
-  topicsWeak: string[];
-  recommendations: string[];
+interface Characteristic {
+    trait_key: string;
+    value: string | number[]; // value can be string for most traits, or number[] for personality_vector
+    is_public: boolean;
 }
 
 export default function DiagnosticsPage() {
   const router = useRouter();
   const { data: session, status } = useSession(); // Get session status
 
-  const [diagnostics, setDiagnostics] = useState<DiagnosticsData | null>(null);
+  const [characteristics, setCharacteristics] = useState<Characteristic[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,14 +24,38 @@ export default function DiagnosticsPage() {
       return;
     }
 
-    async function fetchDiagnostics() {
+    async function fetchCharacteristics() {
+      if (!session?.user?.id) {
+        console.error("User not authenticated for fetching characteristics.");
+        setLoading(false);
+        return;
+      }
+
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+      if (!backendUrl) {
+          console.error("NEXT_PUBLIC_BACKEND_API_URL is not defined.");
+          setLoading(false);
+          return;
+      }
+
       try {
-        const res = await fetch("/api/diagnostics");
+        const url = `${backendUrl}/profile/getCharacteristics`;
+        console.log(`Sending GET request to ${url}`);
+        console.log("Headers:", {
+            "X-User-Id": session.user.id,
+        });
+
+        // Fetch characteristics from the actual backend
+        const res = await fetch(url, {
+          headers: {
+            "X-User-Id": session.user.id, // Always send X-User-Id
+          },
+        });
         if (!res.ok) {
-          throw new Error("Failed to fetch characteristics data");
+          throw new Error(`Failed to fetch characteristics data: ${res.statusText}`);
         }
-        const data: DiagnosticsData = await res.json();
-        setDiagnostics(data);
+        const data: { characteristics: Characteristic[] } = await res.json(); // Backend returns an object with a 'characteristics' array
+        setCharacteristics(data.characteristics);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -44,9 +64,9 @@ export default function DiagnosticsPage() {
     }
 
     if (status === "authenticated") {
-      fetchDiagnostics();
+      fetchCharacteristics();
     }
-  }, [status, router]);
+  }, [status, router, session?.user?.id]); // Add session.user.id to dependencies
 
   if (status === "loading" || status === "unauthenticated" || loading) {
     return (
@@ -64,10 +84,10 @@ export default function DiagnosticsPage() {
     );
   }
 
-  if (!diagnostics) {
+  if (!characteristics || characteristics.length === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
-        <p className="text-secondary-grey">No diagnostic data available.</p>
+        <p className="text-secondary-grey">No characteristic data available.</p>
       </div>
     );
   }
@@ -76,45 +96,17 @@ export default function DiagnosticsPage() {
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <main className="w-full max-w-2xl rounded-lg bg-white p-8 shadow-md ">
         <h1 className="mb-6 text-center text-3xl font-bold text-primary">
-          User Diagnostics
+          User Characteristics
         </h1>
         <div className="space-y-4 text-foreground">
-          <p>
-            <strong>User ID:</strong> {diagnostics.userId}
-          </p>
-          <p>
-            <strong>Quiz Attempts:</strong> {diagnostics.quizAttempts}
-          </p>
-          <p>
-            <strong>Last Score:</strong> {diagnostics.lastScore}
-          </p>
-          <p>
-            <strong>Average Score:</strong> {diagnostics.averageScore}
-          </p>
-          <div>
-            <strong>Strong Topics:</strong>
-            <ul className="list-disc list-inside ml-4">
-              {diagnostics.topicsStrong.map((topic, index) => (
-                <li key={index}>{topic}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <strong>Weak Topics:</strong>
-            <ul className="list-disc list-inside ml-4">
-              {diagnostics.topicsWeak.map((topic, index) => (
-                <li key={index}>{topic}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <strong>Recommendations:</strong>
-            <ul className="list-disc list-inside ml-4">
-              {diagnostics.recommendations.map((rec, index) => (
-                <li key={index}>{rec}</li>
-              ))}
-            </ul>
-          </div>
+          {characteristics.map((char) => (
+            <p key={char.trait_key}>
+              <strong>{char.trait_key}:</strong>{" "}
+              {Array.isArray(char.value) ? char.value.join(", ") : char.value}
+              {" "}
+              {char.is_public ? "(Public)" : "(Private)"}
+            </p>
+          ))}
         </div>
       </main>
     </div>

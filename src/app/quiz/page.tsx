@@ -12,16 +12,14 @@ interface Answer {
 }
 
 interface Question {
-    id: string;
+    id: number; // Changed to integer ID as per plan
     question_type: number;
     question: { number: number; text: string };
     answers: Answer[];
+    prior_response: { selected_ids?: number[]; text?: string; } | null; // Added prior_response
 }
 
-interface QuizSubmission {
-    questionId: string;
-    selectedAnswerIds: number[];
-}
+// QuizSubmission interface is removed as answers are submitted per question
 
 export default function QuizPage() {
     const router = useRouter();
@@ -29,85 +27,198 @@ export default function QuizPage() {
 
     const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
     const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
-    const [quizResponses, setQuizResponses] = useState<QuizSubmission[]>([]);
-    const [questionCount, setQuestionCount] = useState(0);
-    const MAX_QUESTIONS = 3;
+    // quizResponses state is removed as per per-question submission
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // Renamed from questionCount
+    const [maxQuestionsLoaded, setMaxQuestionsLoaded] = useState(false); // New state variable
+    const [totalQuestions, setTotalQuestions] = useState<number | null>(null); // To store total questions from backend
 
     useEffect(() => {
         if (status === "unauthenticated") {
             router.push("/");
-        } else if (status === "authenticated") {
-            fetchNewQuestion();
+        } else if (status === "authenticated" && !currentQuestion && !maxQuestionsLoaded) {
+            fetchNewQuestion(currentQuestionIndex);
         }
-    }, [status, router]);
+    }, [status, router, currentQuestion, currentQuestionIndex, maxQuestionsLoaded]);
 
-    const fetchNewQuestion = async (theme: string = "general") => {
-        if (questionCount >= MAX_QUESTIONS) {
-            alert("You have completed all questions. Please submit your quiz.");
+    const fetchNewQuestion = async (questionIndex: number) => {
+        if (!session?.user?.id) {
+            console.error("User not authenticated for fetching questions.");
+            return;
+        }
+
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+        if (!backendUrl) {
+            console.error("NEXT_PUBLIC_BACKEND_API_URL is not defined.");
+            return;
+        }
+
+        // If totalQuestions is known and current index exceeds it, stop fetching
+        if (totalQuestions !== null && questionIndex >= totalQuestions) {
+            setMaxQuestionsLoaded(true);
+            setCurrentQuestion(null); // No more questions
             return;
         }
 
         try {
-            const res = await fetch(`/api/question?theme=${theme}`);
+            const url = `${backendUrl}/quiz/getQuestion?index=${questionIndex}`;
+            console.log(`Sending GET request to ${url}`);
+            console.log("Headers:", {
+                "X-User-Id": session.user.id,
+            });
+
+            // Fetch question from the actual backend
+            const res = await fetch(url, {
+                headers: {
+                    "X-User-Id": session.user.id,
+                },
+            });
+
+            if (res.status === 404) { // No more questions
+                setMaxQuestionsLoaded(true);
+                setCurrentQuestion(null);
+                return;
+            }
+
             if (!res.ok) {
                 throw new Error("Failed to fetch question");
             }
+
             const data: Question = await res.json();
             setCurrentQuestion(data);
-            setSelectedAnswers([]);
-            setQuestionCount((prev) => prev + 1);
+            setSelectedAnswers(data.prior_response?.selected_ids || []); // Pre-select if prior response exists
+            // Assuming the backend might send a header for total questions, or we hardcode for now
+            // For now, let's assume if we get a 404, there are no more questions.
+            // A more robust solution would involve the backend telling us the total count.
         } catch (error) {
             console.error("Error fetching question:", error);
             alert("Could not load question. Please try again later.");
         }
     };
 
+    // Refactored handleAnswerSelection to prepare for per-question submission
     const handleAnswerSelection = (answerId: number) => {
         if (!currentQuestion) return;
 
+        // For single-select (type 0), only one answer can be selected.
+        // For multi-select (type 1), toggle selection.
         if (currentQuestion.question_type === 0) {
             setSelectedAnswers([answerId]);
         } else if (currentQuestion.question_type === 1) {
             setSelectedAnswers((prev) =>
                 prev.includes(answerId)
                     ? prev.filter((id) => id !== answerId)
-                    : [...prev, answerId]
+                    : [...prev, answerId].sort((a,b) => a-b) // Ensure consistent order for multi-select
             );
         }
     };
 
-    const handleNextQuestion = () => {
+    const handleNextQuestion = async () => {
         if (!currentQuestion || selectedAnswers.length === 0) {
             alert("Please select an answer before proceeding.");
             return;
         }
-
-        setQuizResponses((prev) => [
-            ...prev,
-            { questionId: currentQuestion.id, selectedAnswerIds: selectedAnswers },
-        ]);
-
-        if (questionCount < MAX_QUESTIONS) {
-            fetchNewQuestion();
-        } else {
-            alert("You have answered all questions. Please submit your quiz.");
-            setCurrentQuestion(null);
+        if (!session?.user?.id) {
+            console.error("User not authenticated for submitting responses.");
+            return;
         }
-    };
 
-    const handleSubmitQuiz = async () => {
-        if (quizResponses.length === 0) {
-            alert("No questions answered yet!");
+        // Prepare response_data based on question type
+        const response_data: { selected_ids?: number[]; text?: string; /* other types if needed */ } = {};
+        if (currentQuestion.question_type === 0 || currentQuestion.question_type === 1) {
+            response_data.selected_ids = selectedAnswers;
+        }
+        // Add logic for other question types (e.g., text, scale) if necessary
+
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+        if (!backendUrl) {
+            console.error("NEXT_PUBLIC_BACKEND_API_URL is not defined.");
             return;
         }
 
         try {
-            const res = await fetch("/api/submit", {
+            const url = `${backendUrl}/quiz/sendResponse`;
+            const requestBody = {
+                question_id: currentQuestion.id,
+                response_data: response_data,
+            };
+            console.log(`Sending POST request to ${url}`);
+            console.log("Headers:", {
+                "Content-Type": "application/json",
+                "X-User-Id": session.user.id,
+            });
+            console.log("Body:", requestBody);
+
+            // Send response to the actual backend
+            const res = await fetch(url, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "X-User-Id": session.user.id, // Always send X-User-Id
                 },
-                body: JSON.stringify(quizResponses),
+                body: JSON.stringify(requestBody),
+            });
+
+            if (!res.ok) {
+                throw new Error("Failed to submit answer for question");
+            }
+
+            console.log(`Answer for question ${currentQuestion.id} submitted successfully.`);
+
+            // Proceed to the next question if available
+            // If totalQuestions is known, use it, otherwise rely on 404 from fetchNewQuestion
+            if (totalQuestions !== null && currentQuestionIndex < totalQuestions - 1) {
+                setCurrentQuestionIndex((prev) => prev + 1); // Increment index, useEffect will fetch new question
+            } else if (totalQuestions === null) { // If total questions unknown, try to fetch next, will get 404 if no more
+                setCurrentQuestionIndex((prev) => prev + 1);
+            } else { // All questions answered
+                alert("You have answered all questions. Please submit your quiz.");
+                setMaxQuestionsLoaded(true);
+                setCurrentQuestion(null); // No more questions to fetch
+            }
+        } catch (error) {
+            console.error("Error submitting answer:", error);
+            alert("Error submitting answer. Please try again.");
+        }
+    };
+
+    const handleSubmitQuiz = async () => {
+        if (!session?.user?.id) {
+            alert("You must be logged in to submit the quiz.");
+            return;
+        }
+        
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+        if (!backendUrl) {
+            console.error("NEXT_PUBLIC_BACKEND_API_URL is not defined.");
+            return;
+        }
+
+        // Generate a mock personality_vector as per plan.txt
+        const personalityVector = [
+            parseFloat((Math.random() * 2 - 1).toFixed(4)),
+            parseFloat((Math.random() * 2 - 1).toFixed(4)),
+            parseFloat((Math.random() * 2 - 1).toFixed(4)),
+            parseFloat((Math.random() * 2 - 1).toFixed(4)),
+        ];
+
+        try {
+            const url = `${backendUrl}/quiz/submit`;
+            const requestBody = { personality_vector: personalityVector };
+            console.log(`Sending POST request to ${url}`);
+            console.log("Headers:", {
+                "Content-Type": "application/json",
+                "X-User-Id": session.user.id,
+            });
+            console.log("Body:", requestBody);
+
+            // Submit quiz to the actual backend
+            const res = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-User-Id": session.user.id, // Always send X-User-Id
+                },
+                body: JSON.stringify(requestBody),
             });
 
             if (!res.ok) {
@@ -115,7 +226,7 @@ export default function QuizPage() {
             }
 
             const result = await res.json();
-            console.log(result);
+            console.log("Quiz submission result:", result);
             alert("Quiz submitted successfully!");
             router.push("/diagnostics");
         } catch (error) {
@@ -132,7 +243,8 @@ export default function QuizPage() {
         );
     }
 
-    if (!currentQuestion && questionCount < MAX_QUESTIONS) {
+    // Only show "Loading quiz..." if we haven't loaded max questions and don't have a current question
+    if (!currentQuestion && !maxQuestionsLoaded) {
         return (
             <div className="flex min-h-screen items-center justify-center p-4">
                 <p className="">Loading quiz...</p>
@@ -161,8 +273,8 @@ export default function QuizPage() {
                                     className={`block w-full rounded-md border p-3 text-left transition-colors cursor-pointer
                     ${
                                         selectedAnswers.includes(answer.id)
-                                            ? "border-primary-red bg-primary-red text-cream"
-                                            : "text-ink border-secondary-grey bg-zinc-100 hover:bg-zinc-200 dark:text-cream dark:bg-zinc-700 dark:hover:bg-zinc-600"
+                                            ? "border-primary bg-primary text-cream" // Updated class names
+                                            : "text-ink border-secondary bg-cream-light hover:bg-cream-dark dark:text-cream dark:bg-ink-light dark:hover:bg-ink" // Updated class names
                                     }`}
                                 >
                                     {answer.text}
@@ -170,7 +282,8 @@ export default function QuizPage() {
                             ))}
                         </div>
                         <div className="flex justify-between">
-                            {questionCount < MAX_QUESTIONS ? (
+                            {/* Check if there are more questions or if we haven't determined total count yet */}
+                            {(!maxQuestionsLoaded && (totalQuestions === null || currentQuestionIndex < totalQuestions -1)) ? (
                                 <Button
                                     onClick={handleNextQuestion}
                                     variant="secondary"
