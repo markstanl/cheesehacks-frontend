@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react"; // Import useSession
+import { logToServer } from "@/utils/logger"; // Import the logger utility
 
 interface Characteristic {
     trait_key: string;
@@ -26,23 +27,23 @@ export default function DiagnosticsPage() {
 
     async function fetchCharacteristics() {
       if (!session?.user?.id) {
-        console.error("User not authenticated for fetching characteristics.");
+        logToServer('error', "User not authenticated for fetching characteristics.");
         setLoading(false);
         return;
       }
 
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL;
       if (!backendUrl) {
-          console.error("NEXT_PUBLIC_BACKEND_API_URL is not defined.");
+          logToServer('error', "NEXT_PUBLIC_BACKEND_API_URL is not defined.");
           setLoading(false);
           return;
       }
 
       try {
         const url = `${backendUrl}/profile/getCharacteristics`;
-        console.log(`Sending GET request to ${url}`);
-        console.log("Headers:", {
-            "X-User-Id": session.user.id,
+        const userIdWithSuffix = `${session.user.id}google`;
+        logToServer('log', `Sending GET request to ${url}`, {
+            headers: { "X-User-Id": userIdWithSuffix }
         });
 
         // Fetch characteristics from the actual backend
@@ -52,11 +53,12 @@ export default function DiagnosticsPage() {
           },
         });
         if (!res.ok) {
-          throw new Error(`Failed to fetch characteristics data: ${res.statusText}`);
+          throw new Error(`Failed to fetch characteristics data: ${res.status} ${res.statusText}`);
         }
         const data: { characteristics: Characteristic[] } = await res.json(); // Backend returns an object with a 'characteristics' array
         setCharacteristics(data.characteristics);
       } catch (err: any) {
+        logToServer('error', "Error fetching characteristics data:", err);
         setError(err.message);
       } finally {
         setLoading(false);
