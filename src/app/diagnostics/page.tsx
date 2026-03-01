@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react"; // Import useSession
 
 interface DiagnosticsData {
   userId: string;
@@ -13,11 +15,19 @@ interface DiagnosticsData {
 }
 
 export default function DiagnosticsPage() {
+  const router = useRouter();
+  const { data: session, status } = useSession(); // Get session status
+
   const [diagnostics, setDiagnostics] = useState<DiagnosticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/"); // Redirect to login if not authenticated
+      return;
+    }
+
     async function fetchDiagnostics() {
       try {
         const res = await fetch("/api/diagnostics");
@@ -33,10 +43,12 @@ export default function DiagnosticsPage() {
       }
     }
 
-    fetchDiagnostics();
-  }, []);
+    if (status === "authenticated") {
+      fetchDiagnostics();
+    }
+  }, [status, router]);
 
-  if (loading) {
+  if (status === "loading" || status === "unauthenticated" || loading) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
         <p className="text-secondary-grey">Loading diagnostics...</p>

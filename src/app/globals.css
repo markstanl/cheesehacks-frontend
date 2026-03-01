@@ -1,12 +1,14 @@
 @import "tailwindcss";
 
+@import "tailwindcss";
+
 @theme inline {
   --color-cream: #fcf9eb;
   --color-ink: #323026;
   --color-uw-red: #C5050C;
 
-  --font-serif: var(--font-libre);
-  --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-inter-sans); /* Using Inter as the primary sans-serif font */
+  --font-mono: var(--font-roboto-mono); /* Using Roboto Mono as the primary monospace font */
 }
 
 body {
