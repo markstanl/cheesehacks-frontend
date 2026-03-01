@@ -1,33 +1,26 @@
 @import "tailwindcss";
 
-:root {
-  --background: #FAFAFA; /* Light background, similar to white */
-  --foreground: #333333; /* Dark grey for text */
-  --primary-red: #C5050C; /* UW-Madison Cardinal Red */
-  --secondary-grey: #666666; /* Mid-grey for accents */
-}
+@import "tailwindcss";
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary-red);
-  --color-secondary: var(--secondary-grey);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-cream: #fcf9eb;
+  --color-ink: #323026;
+  --color-uw-red: #C5050C;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #171717; /* Dark background */
-    --foreground: #ededed; /* Light grey for text in dark mode */
-    --primary-red: #C5050C; /* Still Cardinal Red */
-    --secondary-grey: #999999; /* Lighter grey for accents in dark mode */
-  }
+  --font-serif: var(--font-inter-sans); /* Using Inter as the primary sans-serif font */
+  --font-mono: var(--font-roboto-mono); /* Using Roboto Mono as the primary monospace font */
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans); /* Use the Geist font variable */
-  font-feature-settings: "liga" on, "calt" on;
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-serif);
+
+  letter-spacing: -0.01em;
+}
+
+code, pre, .mono-data {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  opacity: 0.8;
 }

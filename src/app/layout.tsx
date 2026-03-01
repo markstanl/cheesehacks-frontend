@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth"; // Import auth function from the new auth.ts file
 import { LogoutButton } from "@/components/logout-button"; // Import LogoutButton from its new location
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const interSans = Inter({
+  variable: "--font-inter-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const robotoMono = Roboto_Mono({
+  variable: "--font-roboto-mono",
   subsets: ["latin"],
 });
 
@@ -31,7 +31,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${interSans.variable} ${robotoMono.variable} antialiased`}
       >
         <SessionProvider session={session}>
           <header className="bg-primary-red p-4 text-white shadow-md">
