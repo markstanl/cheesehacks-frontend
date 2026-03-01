@@ -1,9 +1,10 @@
 "use client";
 
-import {useState, useEffect} from "react";
-import {useRouter} from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
-import {Button} from "@/components/Button";
+import { Button } from "@/components/Button";
 
 interface Answer {
     id: number;
@@ -12,7 +13,7 @@ interface Answer {
 
 interface Question {
     id: string;
-    question_type: number; // 0 for single select, 1 for multi-select
+    question_type: number;
     question: { number: number; text: string };
     answers: Answer[];
 }
@@ -24,6 +25,8 @@ interface QuizSubmission {
 
 export default function QuizPage() {
     const router = useRouter();
+    const { data: session, status } = useSession();
+
     const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
     const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
     const [quizResponses, setQuizResponses] = useState<QuizSubmission[]>([]);
@@ -31,8 +34,12 @@ export default function QuizPage() {
     const MAX_QUESTIONS = 3;
 
     useEffect(() => {
-        fetchNewQuestion();
-    }, []);
+        if (status === "unauthenticated") {
+            router.push("/");
+        } else if (status === "authenticated") {
+            fetchNewQuestion();
+        }
+    }, [status, router]);
 
     const fetchNewQuestion = async (theme: string = "general") => {
         if (questionCount >= MAX_QUESTIONS) {
@@ -47,7 +54,7 @@ export default function QuizPage() {
             }
             const data: Question = await res.json();
             setCurrentQuestion(data);
-            setSelectedAnswers([]); // Reset selected answers for new question
+            setSelectedAnswers([]);
             setQuestionCount((prev) => prev + 1);
         } catch (error) {
             console.error("Error fetching question:", error);
@@ -59,10 +66,8 @@ export default function QuizPage() {
         if (!currentQuestion) return;
 
         if (currentQuestion.question_type === 0) {
-            // Single select
             setSelectedAnswers([answerId]);
         } else if (currentQuestion.question_type === 1) {
-            // Multi-select
             setSelectedAnswers((prev) =>
                 prev.includes(answerId)
                     ? prev.filter((id) => id !== answerId)
@@ -79,14 +84,14 @@ export default function QuizPage() {
 
         setQuizResponses((prev) => [
             ...prev,
-            {questionId: currentQuestion.id, selectedAnswerIds: selectedAnswers},
+            { questionId: currentQuestion.id, selectedAnswerIds: selectedAnswers },
         ]);
 
         if (questionCount < MAX_QUESTIONS) {
-            fetchNewQuestion(); // Fetch next question
+            fetchNewQuestion();
         } else {
             alert("You have answered all questions. Please submit your quiz.");
-            setCurrentQuestion(null); // No more questions to display
+            setCurrentQuestion(null);
         }
     };
 
@@ -112,13 +117,20 @@ export default function QuizPage() {
             const result = await res.json();
             console.log(result);
             alert("Quiz submitted successfully!");
-            // Optionally redirect to diagnostics or a results page
             router.push("/diagnostics");
         } catch (error) {
             console.error("Error submitting quiz:", error);
             alert("Error submitting quiz. Please try again.");
         }
     };
+
+    if (status === "loading" || status === "unauthenticated") {
+        return (
+            <div className="flex min-h-screen items-center justify-center p-4">
+                <p className="">Loading session...</p>
+            </div>
+        );
+    }
 
     if (!currentQuestion && questionCount < MAX_QUESTIONS) {
         return (
@@ -167,8 +179,8 @@ export default function QuizPage() {
                                 </Button>
                             ) : (
                                 <span className="text-secondary-grey">
-                  All questions answered.
-                </span>
+                                    All questions answered.
+                                </span>
                             )}
                             <Button
                                 onClick={handleSubmitQuiz}
@@ -184,13 +196,13 @@ export default function QuizPage() {
                         <p className="text-lg text-foreground">
                             You have completed all questions!
                         </p>
-                      <Button
-                        onClick={handleSubmitQuiz}
-                        variant="secondary"
-                        className="mt-6"
-                     >
-                        Submit Final Quiz
-                      </Button>
+                        <Button
+                            onClick={handleSubmitQuiz}
+                            variant="secondary"
+                            className="mt-6"
+                        >
+                            Submit Final Quiz
+                        </Button>
                     </div>
                 )}
             </main>
