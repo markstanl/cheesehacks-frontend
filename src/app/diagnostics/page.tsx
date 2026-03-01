@@ -51,7 +51,7 @@ export default function DiagnosticsPage() {
   if (status === "loading" || status === "unauthenticated" || loading) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
-        <p className="text-secondary-grey">Loading characteristics...</p>
+        <p className="text-ink">Loading characteristics...</p>
       </div>
     );
   }

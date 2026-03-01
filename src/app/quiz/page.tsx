@@ -149,7 +149,7 @@ export default function QuizPage() {
 
                 {currentQuestion ? (
                     <div className="space-y-6">
-                        <p className="text-lg text-ink">
+                        <p className="text-lg text-cream">
                             Question {currentQuestion.question.number}:{" "}
                             {currentQuestion.question.text}
                         </p>
@@ -162,7 +162,7 @@ export default function QuizPage() {
                     ${
                                         selectedAnswers.includes(answer.id)
                                             ? "border-primary-red bg-primary-red text-cream"
-                                            : "border-secondary-grey bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
+                                            : "text-ink border-secondary-grey bg-zinc-100 hover:bg-zinc-200 dark:text-cream dark:bg-zinc-700 dark:hover:bg-zinc-600"
                                     }`}
                                 >
                                     {answer.text}

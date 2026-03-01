@@ -23,7 +23,7 @@ export default function LoginPage() {
   if (status === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <p className="text-secondary-grey">Loading...</p>
+        <p className="text-ink">Loading...</p>
       </div>
     );
   }
@@ -49,7 +49,7 @@ export default function LoginPage() {
                   variant="primary"
               >
                   <svg
-                      className="h-5 w-5 text-red-100 group-hover:text-red-50"
+                      className="h-5 w-5 text-cream group-hover:text-white"
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
                       fill="currentColor"
