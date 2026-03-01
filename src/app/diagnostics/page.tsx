@@ -22,7 +22,7 @@ export default function DiagnosticsPage() {
       try {
         const res = await fetch("/api/diagnostics");
         if (!res.ok) {
-          throw new Error("Failed to fetch diagnostics data");
+          throw new Error("Failed to fetch characteristics data");
         }
         const data: DiagnosticsData = await res.json();
         setDiagnostics(data);
@@ -39,7 +39,7 @@ export default function DiagnosticsPage() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
-        <p className="text-secondary-grey">Loading diagnostics...</p>
+        <p className="text-secondary-grey">Loading characteristics...</p>
       </div>
     );
   }
@@ -47,7 +47,7 @@ export default function DiagnosticsPage() {
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
-        <p className="text-red-500">Error: {error}</p>
+        <p className="text-primary">Error: {error}</p>
       </div>
     );
   }
@@ -62,8 +62,8 @@ export default function DiagnosticsPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
-      <main className="w-full max-w-2xl rounded-lg bg-white p-8 shadow-md dark:bg-zinc-800">
-        <h1 className="mb-6 text-center text-3xl font-bold text-primary-red">
+      <main className="w-full max-w-2xl rounded-lg bg-white p-8 shadow-md ">
+        <h1 className="mb-6 text-center text-3xl font-bold text-primary">
           User Diagnostics
         </h1>
         <div className="space-y-4 text-foreground">

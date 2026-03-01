@@ -27,8 +27,8 @@ const libre = Libre_Baskerville({
 });
 
 export const metadata: Metadata = {
-    title: "CheeseHacks Frontend",
-    description: "Frontend for CheeseHacks application",
+    title: "Align",
+    description: "Find out what your values are, and help LLMs understand human values.",
 };
 
 export default function RootLayout({
@@ -39,7 +39,7 @@ export default function RootLayout({
     return (
         <html lang="en" className={`${libre.variable} ${geistMono.variable} ${inter.variable} ${geistSans.variable}`}>
             <body
-                className="antialiased font-serif h-screen w-screen"
+                className="antialiased font-serif h-screen w-screen flex flex-col"
             >
                 <Navbar />
                 {children}

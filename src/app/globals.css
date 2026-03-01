@@ -3,7 +3,10 @@
 @theme inline {
   --color-cream: #fcf9eb;
   --color-ink: #323026;
-  --color-uw-red: #C5050C;
+  --color-dark-ink: #272725;
+  --color-primary: #7A2B2B;
+  --color-secondary: #dd93d4;
+  --color-accent: #2D5A58;
 
   --font-serif: var(--font-libre);
   --font-mono: var(--font-geist-mono);

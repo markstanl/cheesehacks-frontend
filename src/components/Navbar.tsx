@@ -6,7 +6,7 @@ const Navbar = () => {
         <header className="bg-primary-red p-4 text-ink shadow-md">
             <nav className="container mx-auto flex items-center justify-between">
                 <Link href="/" className="text-2xl font-bold">
-                    CheeseHacks
+                    Align
                 </Link>
                 <div className="flex space-x-4">
                     <Link href="/quiz" className="hover:underline">
@@ -18,7 +18,7 @@ const Navbar = () => {
                     <Link href="/" className="hover:underline">
                         Logout
                     </Link>
-                    <Link href="/" className="hover:underline">
+                    <Link href="/friends" className="hover:underline">
                         Friends
                     </Link>
                 </div>
