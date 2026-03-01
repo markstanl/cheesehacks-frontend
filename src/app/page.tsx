@@ -10,9 +10,9 @@ export default function LoginPage() {
   const { data: session, status } = useSession();
 
   useEffect(() => {
-    // If the session is loaded and the user is authenticated, redirect to the quiz page.
+    // If the session is loaded and the user is authenticated, redirect to the new landing page.
     if (status === "authenticated") {
-      router.push("/quiz");
+      router.push("/landing");
     }
   }, [status, router]);
 
