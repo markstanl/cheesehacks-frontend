@@ -1,12 +1,13 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-cream: #fcf9eb;
-  --color-ink: #323026;
-  --color-dark-ink: #272725;
-  --color-primary: #7A2B2B;
-  --color-secondary: #dd93d4;
-  --color-accent: #2D5A58;
+  --color-cream: #F8F6F0; /* Soft off-white */
+  --color-ink: #2D323A; /* Dark grey-blue for main text */
+  --color-dark-ink: #1A1D20; /* Darker charcoal for backgrounds */
+  --color-primary: #C5050C; /* Classic strong red */
+  --color-secondary: #6B7280; /* Muted, cool grey for secondary elements */
+  --color-accent: #057A55; /* Deep, earthy green */
+  --color-light-grey: #E5E7EB; /* For borders and subtle backgrounds */
 
   --font-serif: var(--font-libre);
   --font-sans: var(--font-inter);

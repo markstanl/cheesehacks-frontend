@@ -184,57 +184,57 @@ const FriendsPage = () => {
     }
 
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center p-4">
-            <main className="w-full max-w-2xl rounded-lg bg-dark-ink text-cream p-8 shadow-md ">
-                <h1 className="mb-6 text-center text-3xl font-bold text-cream">
+        <div className="flex min-h-screen flex-col items-center justify-center p-4 bg-cream text-ink">
+            <main className="w-full max-w-2xl rounded-lg bg-white p-8 shadow-lg">
+                <h1 className="mb-6 text-center text-3xl font-bold text-primary">
                     Friends
                 </h1>
 
                 {/* Your Friend Code Section */}
-                <div className="mb-8 text-center">
-                    <h2 className="text-xl font-bold text-cream mb-2">Your Friend Code:</h2>
-                    <p className="bg-cream text-dark-ink p-3 rounded-md inline-block font-mono text-lg select-all">
+                <div className="mb-8 text-center bg-cream p-4 rounded-lg shadow-sm border border-light-grey">
+                    <h2 className="text-xl font-semibold text-ink mb-2">Your Friend Code:</h2>
+                    <p className="bg-light-grey text-dark-ink p-3 rounded-md inline-block font-mono text-lg select-all border border-secondary">
                         {userProfile?.friend_code || "Loading..."}
                     </p>
                 </div>
 
                 {/* Add Friend Section */}
-                <form onSubmit={handleAddFriend} className="mb-8 space-y-4">
-                    <label htmlFor="friendCode" className="block text-cream text-lg font-bold mb-2">
+                <form onSubmit={handleAddFriend} className="mb-8 space-y-4 p-4 bg-cream rounded-lg shadow-sm border border-light-grey">
+                    <label htmlFor="friendCode" className="block text-ink text-lg font-semibold mb-2">
                         Add a Friend by Code:
                     </label>
                     <div className="flex gap-4">
                         <input
                             type="text"
                             id="friendCode"
-                            className="flex-grow p-3 rounded-md bg-cream text-dark-ink border border-primary focus:outline-none focus:ring-2 focus:ring-accent"
+                            className="flex-grow p-3 rounded-md bg-white text-dark-ink border border-light-grey focus:outline-none focus:ring-2 focus:ring-accent"
                             placeholder="Enter friend code"
                             value={friendCodeInput}
                             onChange={(e) => setFriendCodeInput(e.target.value)}
                             required
                         />
-                        <Button type="submit" variant="secondary" className="whitespace-nowrap">
+                        <Button type="submit" variant="primary" className="whitespace-nowrap">
                             Add Friend
                         </Button>
                     </div>
                     {addFriendMessage && (
-                        <p className={`text-center text-sm ${addFriendMessage.startsWith("Error") ? "text-primary" : "text-accent"}`}>
+                        <p className={`text-center text-sm mt-2 ${addFriendMessage.startsWith("Error") ? "text-primary" : "text-accent"}`}>
                             {addFriendMessage}
                         </p>
                     )}
                 </form>
 
                 {/* Friends List Section */}
-                <h2 className="text-xl font-bold text-cream mb-4 text-center">My Friends ({friendsList.length})</h2>
+                <h2 className="text-xl font-bold text-ink mb-4 text-center">My Friends ({friendsList.length})</h2>
                 {friendsList.length === 0 ? (
-                    <p className="text-secondary-grey text-center">You don't have any friends yet. Add some!</p>
+                    <p className="text-secondary text-center italic">You don't have any friends yet. Add some!</p>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {friendsList.map((friend) => (
-                            <div key={friend.id} className="bg-cream text-dark-ink p-4 rounded-lg shadow-sm">
-                                <h3 className="font-bold text-lg">{friend.display_name}</h3>
-                                {friend.about_me && <p className="text-sm italic">{friend.about_me}</p>}
-                                <p className="text-xs text-secondary-grey mt-2">ID: {friend.id}</p>
+                            <div key={friend.id} className="bg-cream text-dark-ink p-4 rounded-lg shadow-sm border border-light-grey">
+                                <h3 className="font-semibold text-lg text-ink">{friend.display_name}</h3>
+                                {friend.about_me && <p className="text-sm italic text-secondary">{friend.about_me}</p>}
+                                <p className="text-xs text-light-grey mt-2">ID: {friend.id}</p>
                             </div>
                         ))}
                     </div>

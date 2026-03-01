@@ -27,20 +27,20 @@ export default function LandingPage() {
         return (
             <div className="flex min-h-screen flex-col items-center justify-center p-4">
                 <main className="w-full max-w-2xl rounded-lg bg-dark-ink text-cream p-8 shadow-md ">
-                    <h1 className="mb-6 text-center text-3xl font-bold text-cream">
+                    <h1 className="mb-6 text-center text-3xl font-bold text-primary">
                         Welcome to Align!
                     </h1>
-                    <p className="text-center text-lg text-cream mb-8">
+                    <p className="text-center text-base text-light-grey mb-8">
                         Ready to discover more about yourself and contribute to understanding human values?
                     </p>
                     <div className="flex flex-col space-y-4">
-                        <Link href="/quiz" passHref className="bg-primary text-cream hover:bg-red-800 font-serif font-bold uppercase tracking-tight py-3 px-8 rounded-md text-center transition-colors duration-300">
+                        <Link href="/quiz" passHref className="bg-primary text-cream hover:bg-primary/90 font-sans font-bold text-base py-3 px-8 rounded-md text-center transition-colors duration-300 shadow-sm">
                             Start Quiz
                         </Link>
-                        <Link href="/diagnostics" passHref className="bg-secondary text-ink hover:bg-purple-800 font-serif font-bold uppercase tracking-tight py-3 px-8 rounded-md text-center transition-colors duration-300">
+                        <Link href="/diagnostics" passHref className="bg-secondary text-cream hover:bg-secondary/90 font-sans font-medium text-sm py-3 px-8 rounded-md text-center transition-colors duration-300 shadow-sm">
                             View Diagnostics
                         </Link>
-                        <Link href="/friends" passHref className="bg-accent text-cream hover:bg-green-700 font-serif font-bold uppercase tracking-tight py-3 px-8 rounded-md text-center transition-colors duration-300">
+                        <Link href="/friends" passHref className="bg-accent text-cream hover:bg-accent/90 font-sans font-medium text-sm py-3 px-8 rounded-md text-center transition-colors duration-300 shadow-sm">
                             Manage Friends
                         </Link>
                     </div>

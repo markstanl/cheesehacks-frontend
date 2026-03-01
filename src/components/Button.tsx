@@ -12,12 +12,12 @@ export const Button = ({
                            className = "",
                            ...props
                        }: ButtonProps) => {
-    const baseStyles = "relative flex items-center justify-center px-8 py-3 transition-all duration-300 disabled:opacity-50";
+    const baseStyles = "relative flex items-center justify-center px-6 py-3 rounded-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed";
 
     const variants = {
-        primary: "border border-ink bg-transparent text-ink hover:bg-ink hover:text-cream font-serif text-lg",
-        secondary: "bg-primary text-cream hover:bg-red-800 font-serif font-bold uppercase tracking-tight",
-        ghost: "text-ink opacity-60 hover:opacity-100 font-serif italic border border-ink bg-transparent",
+        primary: "bg-primary text-cream hover:bg-primary/90 font-sans text-base shadow-sm",
+        secondary: "bg-secondary text-white hover:bg-secondary/90 font-sans font-medium text-sm shadow-sm",
+        ghost: "bg-transparent text-ink hover:text-primary font-sans text-sm",
     };
 
     return (

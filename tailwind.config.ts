@@ -13,9 +13,7 @@ const config: Config = {
         primary: 'var(--color-primary)', // Maps to --color-primary
         secondary: 'var(--color-secondary)',
         accent: 'var(--color-accent)',
-        'cream-light': '#fcfcf6', // Example, adjust as needed or derive from base cream
-        'cream-dark': '#e6e3d2', // Example, adjust as needed or derive from base cream
-        'ink-light': '#5e5c54', // Example, adjust as needed or derive from base ink
+        'light-grey': 'var(--color-light-grey)',
       },
       fontFamily: {
         serif: ['var(--font-libre)'],

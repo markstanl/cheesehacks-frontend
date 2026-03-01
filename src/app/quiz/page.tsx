@@ -405,8 +405,8 @@ export default function QuizPage() {
         try {
             const url = `${backendUrl}/quiz/submit`;
             // The plan.txt specifies sending a personality_vector to /quiz/submit
-            const requestBody = { personality_vector: personalityVector };
-
+            const requestBody = {quizResponses};
+            console.log(requestBody)
             logToServer('log', `Sending POST request to ${url}`, {
                 headers: { "Content-Type": "application/json", "X-User-Id": userIdWithSuffix },
                 body: requestBody
@@ -445,22 +445,22 @@ export default function QuizPage() {
     }
 
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center p-4">
-            <main className="w-full max-w-2xl rounded-lg bg-dark-ink text-cream p-8 shadow-md ">
-                <h1 className="mb-6 text-center text-3xl font-bold text-cream">
+        <div className="flex min-h-screen flex-col items-center justify-center p-4 bg-cream text-ink">
+            <main className="w-full max-w-2xl rounded-lg bg-white p-8 shadow-lg">
+                <h1 className="mb-6 text-center text-3xl font-bold text-primary">
                     Quiz
                 </h1>
 
                 {currentQuestion ? (
                     <div className="space-y-6">
-                        <p className="text-lg text-cream">
+                        <p className="text-lg font-medium text-ink">
                             Question {currentQuestion.question.number}:{" "}
                             {currentQuestion.question.text}
                         </p>
                         <div className="space-y-3">
                             {currentQuestion.question_type === 3 ? ( // Free text input
                                 <textarea
-                                    className="block w-full rounded-md border p-3 text-left text-cream bg-cream-light focus:outline-none focus:ring-2 focus:ring-accent"
+                                    className="block w-full rounded-md border border-light-grey p-3 text-left text-ink bg-cream focus:outline-none focus:ring-2 focus:ring-accent"
                                     rows={5}
                                     placeholder="Type your response here..."
                                     value={freeTextResponse}
@@ -476,14 +476,14 @@ export default function QuizPage() {
                                     <div className="space-y-3 mb-4">
                                         {rankingItems.map((item, index) => (
                                             <div key={`spot-${item.id}`} className="flex items-center gap-2">
-                                                <div className="w-8 h-12 flex items-center justify-center text-cream text-lg font-bold bg-cream-light rounded-md border border-secondary">
+                                                <div className="w-8 h-12 flex items-center justify-center text-ink text-lg font-bold bg-light-grey rounded-md border border-secondary">
                                                     {index + 1}.
                                                 </div>
                                                 <SortableItem key={item.id} id={item.id} text={item.text} />
                                             </div>
                                         ))}
                                     </div>
-                                    <p className="text-sm text-secondary-grey text-center italic">Drag items to reorder them.</p>
+                                    <p className="text-sm text-secondary text-center italic mt-2">Drag items to reorder them.</p>
                                 </DndContext>
                             ) : ( // Button-based selections
                                 currentQuestion.answers.map((answer) => (
@@ -493,8 +493,8 @@ export default function QuizPage() {
                                         className={`block w-full rounded-md border p-3 text-left transition-colors cursor-pointer
                                         ${
                                             selectedAnswers.includes(answer.id)
-                                                ? "border-primary bg-primary text-cream"
-                                                : "text-ink border-secondary bg-cream-light hover:bg-cream-dark dark:text-cream dark:bg-ink-light dark:hover:bg-ink"
+                                                ? "border-primary bg-primary text-cream shadow-sm"
+                                                : "text-ink border-light-grey bg-cream hover:bg-light-grey"
                                         }`}
                                     >
                                         {answer.text}
@@ -505,7 +505,7 @@ export default function QuizPage() {
                         <div className="flex justify-between mt-6">
                             <Button
                                 onClick={handlePreviousQuestion}
-                                variant="secondary" // Changed from "ghost" to "secondary"
+                                variant="secondary"
                                 disabled={currentQuestionIndex === 0}
                             >
                                 Previous
@@ -515,14 +515,14 @@ export default function QuizPage() {
                             {currentQuestionIndex < allQuestions.length -1 ? (
                                 <Button
                                     onClick={handleNextQuestion}
-                                    variant="secondary"
+                                    variant="primary"
                                 >
                                     Next Question
                                 </Button>
                             ) : (
                                 <Button
                                     onClick={handleSubmitQuiz}
-                                    variant="secondary"
+                                    variant="primary"
                                     className="ml-auto"
                                 >
                                     Submit Quiz
@@ -532,13 +532,13 @@ export default function QuizPage() {
                     </div>
                 ) : (
                     <div className="text-center">
-                        <p className="text-lg text-foreground mb-4">
+                        <p className="text-lg text-ink mb-4">
                             You have completed all questions!
                         </p>
                         {allQuestions.length > 0 && quizResponses.length > 0 && ( // Only show submit if questions were loaded and responses exist
                             <Button
                                 onClick={handleSubmitQuiz}
-                                variant="secondary"
+                                variant="primary"
                                 className="mt-6"
                             >
                                 Submit Final Quiz
@@ -575,7 +575,7 @@ function SortableItem(props: { id: number; text: string }) {
             style={style}
             {...attributes}
             {...listeners}
-            className="flex-grow bg-cream text-dark-ink p-3 rounded-md border border-primary text-left cursor-grab active:cursor-grabbing shadow-sm"
+            className="flex-grow bg-cream text-dark-ink p-3 rounded-md border border-light-grey text-left cursor-grab active:cursor-grabbing shadow-sm hover:bg-light-grey"
         >
             {props.text}
         </button>

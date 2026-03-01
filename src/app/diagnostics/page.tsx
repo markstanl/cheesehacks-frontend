@@ -40,23 +40,35 @@ export default function DiagnosticsPage() {
       }
 
       try {
-        const url = `${backendUrl}/profile/getCharacteristics`;
         const userIdWithSuffix = `${session.user.id}google`;
+        const url = `${backendUrl}/profile/getCharacteristics`; // Endpoint for fetching current user's characteristics
         logToServer('log', `Sending GET request to ${url}`, {
             headers: { "X-User-Id": userIdWithSuffix }
         });
 
-        // Fetch characteristics from the actual backend
         const res = await fetch(url, {
           headers: {
-            "X-User-Id": session.user.id, // Always send X-User-Id
+            "X-User-Id": userIdWithSuffix, // Authenticated user ID for the header
           },
         });
         if (!res.ok) {
           throw new Error(`Failed to fetch characteristics data: ${res.status} ${res.statusText}`);
         }
-        const data: { characteristics: Characteristic[] } = await res.json(); // Backend returns an object with a 'characteristics' array
-        setCharacteristics(data.characteristics);
+        // The /profile/getCharacteristics endpoint is expected to return an object with a 'characteristics' array
+        // or potentially the array directly if the backend implementation differs slightly from the mock interpretation.
+        const responseData = await res.json();
+        let fetchedCharacteristics: Characteristic[] = [];
+
+        if (Array.isArray(responseData)) {
+            // If the API returns an array directly
+            fetchedCharacteristics = responseData;
+        } else if (responseData && typeof responseData === 'object' && Array.isArray(responseData.characteristics)) {
+            // If the API returns an object with a 'characteristics' array
+            fetchedCharacteristics = responseData.characteristics;
+        } else {
+            logToServer('warn', 'Unexpected data format from /profile/getCharacteristics endpoint:', responseData);
+        }
+        setCharacteristics(fetchedCharacteristics);
       } catch (err: any) {
         logToServer('error', "Error fetching characteristics data:", err);
         setError(err.message);
@@ -95,19 +107,23 @@ export default function DiagnosticsPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
-      <main className="w-full max-w-2xl rounded-lg bg-white p-8 shadow-md ">
+    <div className="flex min-h-screen flex-col items-center justify-center p-4 bg-cream text-ink">
+      <main className="w-full max-w-2xl rounded-lg bg-white p-8 shadow-lg">
         <h1 className="mb-6 text-center text-3xl font-bold text-primary">
           User Characteristics
         </h1>
-        <div className="space-y-4 text-foreground">
+        <div className="space-y-4 text-ink">
           {characteristics.map((char) => (
-            <p key={char.trait_key}>
-              <strong>{char.trait_key}:</strong>{" "}
-              {Array.isArray(char.value) ? char.value.join(", ") : char.value}
-              {" "}
-              {char.is_public ? "(Public)" : "(Private)"}
-            </p>
+            <div key={char.trait_key} className="p-3 bg-cream rounded-md border border-light-grey">
+              <p>
+                <strong>{char.trait_key}:</strong>{" "}
+                {Array.isArray(char.value) ? char.value.map(val => (typeof val === 'number' ? val.toFixed(4) : val)).join(", ") : char.value}
+                {" "}
+                <span className="text-sm text-secondary">
+                  {char.is_public ? "(Public)" : "(Private)"}
+                </span>
+              </p>
+            </div>
           ))}
         </div>
       </main>
